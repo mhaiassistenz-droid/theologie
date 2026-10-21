@@ -1,0 +1,1 @@
+Seid untereinander so gesinnt, wie es dem Leben in Christus Jesus entspricht: 6 Er war Gott gleich, / hielt aber nicht daran fest, Gott gleich zu sein, 7 sondern er entäußerte sich / und wurde wie ein Sklave / und den Menschen gleich.

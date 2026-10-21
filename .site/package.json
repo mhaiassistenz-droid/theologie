@@ -1,0 +1,12 @@
+{
+  "name": "theologie-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "preview": "node build.mjs && npx --yes serve dist -l 4321"
+  },
+  "dependencies": {
+    "marked": "^16.0.0"
+  }
+}

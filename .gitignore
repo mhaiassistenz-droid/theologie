@@ -1,0 +1,12 @@
+# Obsidian-/Plugin-Einstellungen bleiben lokal (können API-Keys enthalten)
+.obsidian/
+.claudian/
+.trash/
+.DS_Store
+
+# Website-Build
+.site/node_modules/
+.site/dist/
+
+# Alles hier drin wird NIE gepusht (Repo + Website sind öffentlich)
+Privat/
