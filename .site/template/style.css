@@ -355,6 +355,24 @@ details.callout:not([open]) .callout-fold { transform: rotate(-90deg); }
 .empty-note { color: var(--text-faint); font-style: italic; }
 .home-open { display: none; }
 
+/* Startbild im Rahmen: breiter als die Textspalte, knapper Abstand zum Bildschirmrand */
+.main { container-type: inline-size; }
+.home-figure {
+  --gap: 24px;
+  --w: min(100cqi - 2 * var(--gap), 1200px);
+  width: var(--w);
+  margin-top: 24px;
+  margin-bottom: 8px;
+  margin-left: calc(50% - var(--w) / 2);
+  margin-right: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  box-shadow: 0 12px 32px -14px var(--shadow);
+}
+.home-figure img { display: block; width: 100%; height: auto; border-radius: 5px; }
+
 
 /* ------------------------------------------------------------- Handy */
 
@@ -425,6 +443,14 @@ details.callout:not([open]) .callout-fold { transform: rotate(-90deg); }
   .markdown h2 { font-size: 1.45em; }
   .markdown ol > li:has(> h2:first-child)::marker { font-size: 1.45em; }
   .markdown ul, .markdown ol { padding-left: 1.5em; }
+
+  .home-figure {
+    --gap: max(12px, env(safe-area-inset-left), env(safe-area-inset-right));
+    margin-top: 18px;
+    padding: 5px;
+    border-radius: 8px;
+  }
+  .home-figure img { border-radius: 4px; }
 
   .home-open {
     display: inline-flex;

@@ -4,6 +4,7 @@
   const $ = (id) => document.getElementById(id);
   const tree = JSON.parse($('tree-data').textContent);
   const SITE_TITLE = document.body.dataset.title;
+  const HOME_TITLE = 'Knowledge'; // Überschrift der Startseite
   const mobile = matchMedia('(max-width: 800px)');
 
   const treeEl = $('tree');
@@ -225,12 +226,20 @@
   function showHome() {
     document.title = SITE_TITLE;
     setActive(null);
-    setCrumbs([SITE_TITLE]);
+    setCrumbs([HOME_TITLE]);
     const lead = el('p', 'home-lead', `${order.length} Notizen. Wähle eine Notiz aus dem Verzeichnis.`);
+    const fig = el('figure', 'home-figure');
+    const img = el('img');
+    img.src = 'img/startbild.jpg';
+    img.alt = 'Thomas Cole: The Course of Empire – Destruction (1836)';
+    img.width = 1830;
+    img.height = 1118;
+    img.decoding = 'async';
+    fig.append(img);
     const btn = el('button', 'home-open', 'Verzeichnis öffnen');
     btn.type = 'button';
     btn.addEventListener('click', () => setDrawer(true));
-    page(SITE_TITLE, [lead, btn]);
+    page(HOME_TITLE, [lead, fig, btn]);
     window.scrollTo(0, 0);
   }
 
