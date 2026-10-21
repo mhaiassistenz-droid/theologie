@@ -337,11 +337,30 @@ for (const { abs, url } of attachments.values()) {
   fs.copyFileSync(abs, path.join(OUT, url));
 }
 
+// style.css, app.js, icons/ ... (index.html wird unten befüllt)
+fs.cpSync(TEMPLATE, OUT, { recursive: true, filter: (src) => path.basename(src) !== 'index.html' });
 const css = fs.readFileSync(path.join(TEMPLATE, 'style.css'), 'utf8');
 const js = fs.readFileSync(path.join(TEMPLATE, 'app.js'), 'utf8');
 const version = crypto.createHash('sha1').update(css + js).digest('hex').slice(0, 8);
-fs.writeFileSync(path.join(OUT, 'style.css'), css);
-fs.writeFileSync(path.join(OUT, 'app.js'), js);
+
+// Web-App: "Zum Home-Bildschirm" öffnet die Seite wie eine App (ohne Browserleiste)
+const manifest = {
+  name: SITE_TITLE,
+  short_name: SITE_TITLE,
+  description: `${SITE_TITLE} – Notizen zum Lesen`,
+  lang: 'de',
+  start_url: './',
+  scope: './',
+  display: 'standalone',
+  background_color: '#1e1e1e',
+  theme_color: '#1e1e1e',
+  icons: [
+    { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+    { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+    { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+};
+fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify(manifest, null, 2));
 
 const html = fs
   .readFileSync(path.join(TEMPLATE, 'index.html'), 'utf8')

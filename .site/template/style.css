@@ -441,6 +441,12 @@ details.callout:not([open]) .callout-fold { transform: rotate(-90deg); }
 
 }
 
+/* Als App vom Home-Bildschirm gestartet: kein Browser-Zurück vorhanden -> eigener Zurück-Knopf */
+@media (max-width: 800px) and (display-mode: standalone) {
+  #back-btn { display: inline-flex; }
+  .view-header { padding-left: 96px; padding-right: 96px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
