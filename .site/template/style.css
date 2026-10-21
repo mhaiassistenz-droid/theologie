@@ -75,7 +75,7 @@ button { font: inherit; color: inherit; }
   color: var(--text-muted);
   cursor: pointer;
 }
-.icon-btn:hover { background: var(--bg-hover); color: var(--text-normal); }
+@media (hover: hover) { .icon-btn:hover { background: var(--bg-hover); color: var(--text-normal); } }
 .icon-btn:disabled { color: var(--text-faint); background: none; cursor: default; }
 .icon-btn svg, .tree svg {
   width: 18px; height: 18px;
@@ -179,7 +179,7 @@ button { font: inherit; color: inherit; }
   cursor: pointer;
 }
 .folder-title span { display: block; overflow: hidden; text-overflow: ellipsis; }
-.tree-item:hover { background: var(--bg-hover); color: var(--text-normal); }
+@media (hover: hover) { .tree-item:hover { background: var(--bg-hover); color: var(--text-normal); } }
 .tree-item.is-active { background: var(--bg-active); color: var(--text-normal); }
 
 .tree .chevron {
