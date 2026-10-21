@@ -30,7 +30,7 @@
     for (const n of nodes) {
       if (n.c) index(n.c, [...parents, n.n]);
       else {
-        const info = { name: n.n, slug: n.s, parents };
+        const info = { name: n.n, slug: n.s, parents, empty: !!n.e };
         notes.set(n.s, info);
         order.push(info);
       }
@@ -70,6 +70,7 @@
         const btn = el('button', 'tree-item folder-title');
         btn.type = 'button';
         btn.innerHTML = CHEVRON;
+        btn.title = n.n;
         btn.append(el('span', null, n.n));
         btn.addEventListener('click', () => {
           setFolder(key, wrap.classList.contains('is-collapsed'));
@@ -85,6 +86,7 @@
       } else {
         const a = el('a', 'tree-item note-title', n.n);
         a.href = `#/${n.s}`;
+        a.title = n.n;
         container.append(a);
         noteEls.set(n.s, a);
       }
@@ -236,21 +238,6 @@
     page(title, [el('p', 'home-lead', text)]);
   }
 
-  function noteNav(info) {
-    const i = order.indexOf(info);
-    const nav = el('nav', 'note-nav');
-    nav.setAttribute('aria-label', 'Weitere Notizen');
-    const link = (n, cls, label) => {
-      const a = el('a', cls);
-      a.href = `#/${n.slug}`;
-      a.append(el('small', null, label), document.createTextNode(n.name));
-      return a;
-    };
-    if (order[i - 1]) nav.append(link(order[i - 1], 'prev', '← Vorherige'));
-    if (order[i + 1]) nav.append(link(order[i + 1], 'next', 'Nächste →'));
-    return nav;
-  }
-
   const cache = new Map();
   let current = null;
 
@@ -271,6 +258,12 @@
     setActive(slug);
     setCrumbs([...info.parents, info.name]);
 
+    if (info.empty) {
+      page(info.name, [el('p', 'empty-note', 'Noch kein Inhalt.')]);
+      window.scrollTo(0, 0);
+      return;
+    }
+
     let html = cache.get(slug);
     if (html == null) {
       contentEl.setAttribute('aria-busy', 'true');
@@ -290,7 +283,7 @@
 
     const body = el('div', 'markdown');
     body.innerHTML = html;
-    page(info.name, [body, noteNav(info)]);
+    page(info.name, [body]);
     const y = history.state && typeof history.state.y === 'number' ? history.state.y : 0;
     window.scrollTo(0, y);
   }

@@ -54,6 +54,12 @@ function uniqueSlug(base) {
   return slug;
 }
 
+function hasAttachments(absDir) {
+  return fs.readdirSync(absDir, { withFileTypes: true }).some((e) =>
+    e.isDirectory() ? !e.name.startsWith('.') && hasAttachments(path.join(absDir, e.name)) : IMAGE_EXT.has(path.extname(e.name).toLowerCase()),
+  );
+}
+
 function walk(absDir, relParts) {
   const entries = fs
     .readdirSync(absDir, { withFileTypes: true })
@@ -67,23 +73,26 @@ function walk(absDir, relParts) {
     const abs = path.join(absDir, e.name);
     if (e.isDirectory()) {
       const children = walk(abs, [...relParts, name]);
-      if (children.length) folders.push({ n: name, c: children });
+      // Leere Ordner zeigen wie in Obsidian – reine Bilder-/Anhänge-Ordner nicht.
+      if (children.length || !hasAttachments(abs)) folders.push({ n: name, c: children });
       continue;
     }
     const ext = path.extname(name).toLowerCase();
     if (ext === '.md') {
       const src = nfc(fs.readFileSync(abs, 'utf8'));
-      if (!src.trim()) continue; // leere Platzhalter-Notizen nicht anzeigen
       const title = name.slice(0, -3);
+      const empty = !src.trim();
+      if (empty && /^Unbenannt( \d+)?$/.test(title)) continue; // versehentlich angelegte "Unbenannt"-Notizen
       const note = {
         name: title,
         rel: [...relParts, title].join('/'),
         dir: relParts.join('/'),
         slug: uniqueSlug([...relParts, title].map(slugify).join('/')),
         src,
+        empty,
       };
       notes.push(note);
-      files.push({ n: title, s: note.slug });
+      files.push(empty ? { n: title, s: note.slug, e: 1 } : { n: title, s: note.slug });
     } else if (IMAGE_EXT.has(ext)) {
       const url = `files/${uniqueSlug('files/' + slugify(name.slice(0, -ext.length))).slice(6)}${ext}`;
       attachments.set(name.toLowerCase(), { abs, url });
@@ -148,7 +157,7 @@ function renderEmbed(inner, block) {
 
   if (IMAGE_EXT.has(ext)) {
     const att = attachments.get(file.split('/').pop().toLowerCase());
-    if (!att) return `<span class="unresolved">${esc(file)}</span>`;
+    if (!att) return `<span class="unresolved">Bild fehlt: ${esc(file)}</span>`;
     const size = /^(\d+)(x\d+)?$/.exec(alias);
     const width = size ? ` width="${size[1]}"` : '';
     const alt = alias && !size ? esc(alias) : '';
@@ -279,6 +288,18 @@ md.use({
       },
     },
   ],
+  renderer: {
+    // Normale Markdown-Bilder ![](Pasted%20image.png) -> Datei aus dem Vault
+    image({ href, title, text }) {
+      if (/^[a-z][a-z0-9+.-]*:/i.test(href)) return false;
+      let file = href;
+      try { file = decodeURIComponent(href); } catch (_) { /* Rohwert behalten */ }
+      const att = attachments.get(nfc(file).split('/').pop().toLowerCase());
+      if (!att) return false;
+      const t = title ? ` title="${esc(title)}"` : '';
+      return `<img src="${att.url}" alt="${esc(text)}"${t} loading="lazy">`;
+    },
+  },
   hooks: {
     preprocess: (src) => src.replace(/%%[\s\S]*?%%/g, ''), // Obsidian-Kommentare
     postprocess: (html) =>
@@ -305,6 +326,7 @@ fs.rmSync(OUT, { recursive: true, force: true });
 fs.mkdirSync(path.join(OUT, 'n'), { recursive: true });
 
 for (const note of notes) {
+  if (note.empty) continue; // leere Notizen zeigt app.js direkt an
   const file = path.join(OUT, 'n', `${note.slug}.html`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, renderNote(note));
@@ -329,4 +351,7 @@ const html = fs
 fs.writeFileSync(path.join(OUT, 'index.html'), html);
 fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
 
-console.log(`${notes.length} Notizen, ${attachments.size} Bilder -> ${path.relative(process.cwd(), OUT) || OUT}`);
+const emptyCount = notes.filter((n) => n.empty).length;
+console.log(
+  `${notes.length} Notizen (${emptyCount} leer), ${attachments.size} Bilder -> ${path.relative(process.cwd(), OUT) || OUT}`,
+);
