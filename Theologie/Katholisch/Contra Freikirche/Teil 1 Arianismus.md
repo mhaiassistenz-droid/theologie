@@ -1,3 +1,4 @@
+
 Die Freikirche glaubt nicht an das was die Bible sagt sondern an das was dir Kirche drauß gemacht hat 
 
 Siehe Bibelstelle **Johannes 10. 30**
